@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Fichiers bruts SYNTHÉTIQUES déposés dans data/raw/ par le générateur.
+      Lus directement par DuckDB (read_csv / read_json), toutes colonnes en texte
+      pour ne rien perdre avant le nettoyage.
+    tables:
+      - name: customers
+        description: Export CRM des clients (doublons et mises à jour SCD possibles).
+        meta:
+          external_location: "read_csv('data/raw/customers.csv', header=true, all_varchar=true)"
+      - name: accounts
+        description: Comptes (courant, épargne, carte de crédit) rattachés aux clients.
+        meta:
+          external_location: "read_csv('data/raw/accounts.csv', header=true, all_varchar=true)"
+      - name: merchants
+        description: Référentiel commerçants (JSON) avec MCC et pays.
+        meta:
+          external_location: "read_json('data/raw/merchants.json', format='array')"
+      - name: fx_rates
+        description: Cours de change quotidiens (1 unité de devise en EUR), non publiés le week-end.
+        meta:
+          external_location: "read_csv('data/raw/fx_rates.csv', header=true, all_varchar=true)"
+      - name: transactions
+        description: Flux de transactions carte, un fichier par lot d'ingestion hebdomadaire.
+        meta:
+          external_location: "read_csv('data/raw/transactions/*.csv', header=true, all_varchar=true, filename=true)"

@@ -1,0 +1,123 @@
+version: 2
+
+models:
+  - name: silver_customers
+    description: Clients dédoublonnés (dernière version), e-mail normalisé, date de naissance parsée (ISO ou jj/mm/aaaa).
+    columns:
+      - name: customer_id
+        description: Identifiant unique du client.
+        data_tests: [unique, not_null]
+      - name: email
+        description: E-mail en minuscules, null si absent à la source.
+      - name: birth_date
+        description: Date de naissance, null si illisible à la source.
+      - name: segment
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["MASS_MARKET", "PREMIUM", "PRIVATE", "YOUNG"]
+      - name: country
+        data_tests: [not_null]
+
+  - name: silver_accounts
+    description: Comptes bancaires typés.
+    columns:
+      - name: account_id
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_customers')
+                field: customer_id
+      - name: account_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["CHECKING", "SAVINGS", "CREDIT_CARD"]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["ACTIVE", "CLOSED"]
+
+  - name: silver_merchants
+    description: Commerçants avec catégorie métier (imputée depuis le MCC si absente).
+    columns:
+      - name: merchant_id
+        data_tests: [unique, not_null]
+      - name: merchant_category
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mcc_categories')
+                field: category
+
+  - name: silver_fx_rates
+    description: Cours de change quotidiens dédoublonnés (EUR = 1).
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ["rate_date", "currency"]
+    columns:
+      - name: rate_to_eur
+        data_tests: [not_null, positive_value]
+
+  - name: int_transactions_validated
+    description: Vue intermédiaire qui parse chaque ligne brute et lui attribue un motif de rejet éventuel.
+    columns:
+      - name: rejection_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["missing_transaction_id", "missing_account_id", "unknown_account", "unknown_merchant",
+                         "invalid_timestamp", "event_after_ingestion", "invalid_amount", "unknown_currency",
+                         "missing_fx_rate"]
+
+  - name: silver_transactions
+    description: >
+      Transactions valides, dédoublonnées sur transaction_id (dernière ingestion gagnante),
+      typées et converties en EUR. Modèle incrémental (delete+insert sur unique_key).
+    columns:
+      - name: transaction_id
+        description: Identifiant unique de la transaction.
+        data_tests: [unique, not_null]
+      - name: account_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_accounts')
+                field: account_id
+      - name: merchant_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_merchants')
+                field: merchant_id
+      - name: transaction_ts
+        data_tests: [not_null]
+      - name: amount_eur
+        description: Montant converti en EUR avec le dernier cours disponible à la date de l'opération.
+        data_tests: [not_null, positive_value]
+      - name: channel
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["POS", "CONTACTLESS", "ECOM", "ATM"]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["APPROVED", "DECLINED"]
+      - name: is_late_arrival
+        description: Vrai si la transaction est arrivée plus de `late_arrival_days` jours après l'événement.
+
+  - name: silver_transactions_rejected
+    description: Quarantaine des transactions rejetées, avec motif, pour audit et retraitement.
+    columns:
+      - name: rejection_reason
+        data_tests: [not_null]

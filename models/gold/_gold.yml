@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: gold_daily_category_kpis
+    description: KPIs quotidiens par catégorie de commerçant (volumes, taux de refus, montants EUR, panier moyen).
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ["transaction_date", "merchant_category"]
+    columns:
+      - name: transaction_date
+        data_tests: [not_null]
+      - name: merchant_category
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mcc_categories')
+                field: category
+      - name: tx_count
+        data_tests: [positive_value]
+      - name: decline_rate
+        description: Part des transactions refusées (0-1).
+
+  - name: gold_customer_360
+    description: Vue 360 d'un client - profil, comptes détenus, activité carte, catégorie préférée et alertes fraude.
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: total_spend_eur
+        description: Somme des transactions approuvées en EUR.
+      - name: fraud_alerts
+        description: Nombre de transactions du client présentes dans gold_fraud_signals.
+        data_tests: [not_null]
+
+  - name: gold_fraud_signals
+    description: >
+      Alertes de fraude à base de règles explicables. Score = 40 (vélocité >= 4 tx en 10 min)
+      + 35 (montant > 10x la médiane du compte et > 500 EUR) + 15 (e-commerce de nuit > 200 EUR)
+      + 15 (pays commerçant différent du pays client et > 300 EUR). Alerte si score >= 35.
+    columns:
+      - name: transaction_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_transactions')
+                field: transaction_id
+      - name: fraud_score
+        data_tests: [not_null, positive_value]
+      - name: risk_level
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["HIGH", "MEDIUM"]

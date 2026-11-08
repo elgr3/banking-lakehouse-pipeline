@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: dbt parse (project compiles)
+        run: dbt parse --profiles-dir . --project-dir .
+
+      - name: Run pipeline on a small sample (generate + dbt build initial + incremental)
+        run: python -m pipeline run --n-transactions 20000 --n-customers 2000 --n-merchants 300
+
+      - name: Show metrics
+        if: always()
+        run: cat reports/metrics.json || true
+
+      - name: Upload metrics and dbt artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-report
+          path: |
+            reports/
+            target/run_results.json
+            target/manifest.json

@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: bronze_customers
+    description: Clients bruts, typés en texte. Contient doublons, e-mails vides, dates de naissance hétérogènes.
+    columns:
+      - name: customer_id
+        description: Identifiant client (non unique à ce stade).
+        data_tests: [not_null]
+  - name: bronze_accounts
+    description: Comptes bruts.
+    columns:
+      - name: account_id
+        data_tests: [not_null, unique]
+  - name: bronze_merchants
+    description: Commerçants bruts issus du JSON.
+    columns:
+      - name: merchant_id
+        data_tests: [not_null, unique]
+  - name: bronze_fx_rates
+    description: Cours de change bruts (une publication peut être dupliquée).
+  - name: bronze_transactions
+    description: >
+      Transactions brutes de tous les lots ingérés jusqu'à `ingest_until`.
+      Aucune règle de qualité appliquée : doublons, nulls, dates et devises invalides sont conservés.
+    columns:
+      - name: transaction_id
+        description: "Identifiant transaction (non unique à ce stade : doublons et rejeux)."
+      - name: _source_file
+        description: Nom du fichier de lot d'origine (lignage).
+        data_tests: [not_null]
+      - name: ingested_at
+        description: Horodatage d'ingestion du lot.
+        data_tests: [not_null]

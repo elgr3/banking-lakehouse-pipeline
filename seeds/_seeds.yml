@@ -1,0 +1,12 @@
+version: 2
+seeds:
+  - name: mcc_categories
+    description: Référentiel MCC (Merchant Category Code) -> catégorie métier, utilisé pour compléter les catégories manquantes.
+    config:
+      column_types:
+        mcc: varchar
+    columns:
+      - name: mcc
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests: [unique, not_null]

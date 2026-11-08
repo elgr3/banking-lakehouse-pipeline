@@ -1,0 +1,5 @@
+# Direct dependencies (exact pins). Full resolved set: requirements.lock.txt
+dbt-core==1.11.17
+dbt-duckdb==1.11.1
+duckdb==2.0.0
+numpy==2.5.4

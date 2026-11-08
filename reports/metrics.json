@@ -1,0 +1,131 @@
+{
+  "run_at_utc": "2026-11-08T05:17:07+00:00",
+  "data_is_synthetic": true,
+  "parameters": {
+    "n_transactions_requested": 500000,
+    "n_customers": 20000,
+    "n_merchants": 2000,
+    "seed": 42
+  },
+  "generator": {
+    "files_rows": {
+      "customers": 20500,
+      "accounts": 31014,
+      "merchants": 2000,
+      "fx_rates": 1212,
+      "transactions": 508103
+    },
+    "transaction_batches": 27,
+    "injected_quality_issues": {
+      "alt_date_format": 12505,
+      "bad_date": 2028,
+      "null_amount": 1496,
+      "comma_decimal": 13462,
+      "unknown_ccy": 1460,
+      "messy_ccy": 6064,
+      "null_account": 2002,
+      "orphan_merchant": 1008,
+      "late_arriving": 9969,
+      "exact_duplicates": 5015,
+      "replayed": 1504,
+      "fraud_burst_rows": 1334,
+      "amount_outliers": 250
+    }
+  },
+  "raw_rows": {
+    "customers": 20500,
+    "accounts": 31014,
+    "merchants": 2000,
+    "fx_rates": 1212,
+    "transactions": 508103
+  },
+  "clean_rows": {
+    "customers": 20000,
+    "accounts": 31014,
+    "merchants": 2000,
+    "fx_rates": 1384,
+    "transactions": 493637
+  },
+  "transactions": {
+    "raw_rows": 508103,
+    "rows_after_cleaning": 493637,
+    "rejected_rows_quarantined": 8046,
+    "duplicate_rows_removed": 6420,
+    "pct_rows_rejected": 1.584,
+    "pct_rows_removed_total": 2.847,
+    "rejections_by_reason": {
+      "invalid_timestamp": 2044,
+      "missing_account_id": 2026,
+      "invalid_amount": 1504,
+      "unknown_currency": 1459,
+      "unknown_merchant": 1013
+    },
+    "late_arrivals_kept": 10636,
+    "non_eur_converted": 72697,
+    "approved_amount_eur_total": 33959804.06
+  },
+  "gold": {
+    "daily_category_kpi_rows": 1810,
+    "customer_360_rows": 20000,
+    "fraud_alerts": 6060,
+    "fraud_alerts_high": 813,
+    "fraud_rules_eval_on_injected_bursts": {
+      "injected_burst_rows_in_silver": 1314,
+      "injected_burst_rows_flagged": 1233,
+      "recall_pct": 93.84,
+      "share_of_alerts_from_injected_bursts_pct": 20.35
+    }
+  },
+  "incremental": {
+    "silver_rows_after_initial_load": 489880,
+    "silver_rows_after_incremental_run": 493637,
+    "rows_added_by_incremental_run": 3757,
+    "last_batch_date": "2025-07-07"
+  },
+  "dbt": {
+    "initial_load": {
+      "models_total": 15,
+      "models_success": 15,
+      "seeds_total": 1,
+      "tests_total": 59,
+      "tests_passed": 59,
+      "tests_warned": 0,
+      "tests_failed": 0,
+      "tests_errored": 0,
+      "tests_skipped": 0,
+      "failed_tests": [],
+      "seconds": 171.43,
+      "dbt_reported_elapsed_seconds": 47.09,
+      "exit_code": 0
+    },
+    "incremental": {
+      "models_total": 15,
+      "models_success": 15,
+      "seeds_total": 1,
+      "tests_total": 59,
+      "tests_passed": 59,
+      "tests_warned": 0,
+      "tests_failed": 0,
+      "tests_errored": 0,
+      "tests_skipped": 0,
+      "failed_tests": [],
+      "seconds": 82.46,
+      "dbt_reported_elapsed_seconds": 25.25,
+      "exit_code": 0
+    }
+  },
+  "runtime_seconds": {
+    "generate": 38.62,
+    "dbt_build_initial_load": 171.43,
+    "dbt_build_incremental": 82.46,
+    "dbt_docs_generate": 60.24,
+    "total": 358.08
+  },
+  "environment": {
+    "python": "3.12.0",
+    "duckdb": "2.0.0",
+    "platform": "Windows-11",
+    "dbt_core": "1.11.17",
+    "dbt_duckdb": "1.11.1"
+  }
+}

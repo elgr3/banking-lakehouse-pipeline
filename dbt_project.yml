@@ -1,0 +1,37 @@
+name: banking_lakehouse
+version: "1.0.0"
+config-version: 2
+profile: banking_lakehouse
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Upper bound on ingestion timestamp: lets the orchestrator replay an
+  # "initial load" followed by a true incremental run on the last batch.
+  ingest_until: "9999-12-31"
+  late_arrival_days: 8
+  max_rejection_rate: 0.05
+
+models:
+  banking_lakehouse:
+    bronze:
+      +schema: bronze
+      +materialized: table
+      +tags: ["bronze"]
+    silver:
+      +schema: silver
+      +materialized: table
+      +tags: ["silver"]
+    gold:
+      +schema: gold
+      +materialized: table
+      +tags: ["gold"]
+
+seeds:
+  banking_lakehouse:
+    +schema: reference
