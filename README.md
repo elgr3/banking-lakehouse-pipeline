@@ -6,8 +6,6 @@ Pipeline ELT de bout en bout, exécutable en local en une commande. Il génère 
 
 Auteur : **Rody Brayan DAMA**, alternant AI / Data Engineer chez BNP Paribas Cardif.
 
----
-
 ## Contexte métier
 
 Une banque reçoit chaque semaine des lots de transactions carte issus de plusieurs systèmes (monétique, e-commerce, DAB). Les données brutes posent les problèmes habituels de la production :
